@@ -14,17 +14,27 @@ class ISampleClass(ABC):
     """
     An interface class must have an "I" before the class name.
     """
-    
+
     @abstractmethod
     def say_hi_to_mom(self) -> str:
         """
         This is an abstract method that should be implemented in a subclass.
-        
-        Calling this method from the interface class should raise an exception, as you are 
+
+        Calling this method from the interface class should raise an exception, as you are
         supposed to call it from the Implementation class. However, do note that the implementation
         class must have an implementation of this method.
-        
+
         :returns: This will return a String object.
         """
 
-        raise Exception("Method Not Implemented")
+        raise RuntimeError("Method Not Implemented")
+
+    @abstractmethod
+    def say_hi_to_dad(self) -> int:
+        """
+        Same as above
+
+        :return: Int
+        """
+
+        raise RuntimeError("Method Not Implemented")

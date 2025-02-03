@@ -16,7 +16,7 @@ class SampleClassImpl(ISampleClass):
     There is no naming convention for Implementation classes. However, if there is only one
     implementation for an interface, it is best practice to end the class name with "Impl"
     """
-    
+
     def say_hi_to_mom(self) -> str:
         """
         We are "implementing" the interfaces' defined functions. This is what other people will use,
@@ -26,3 +26,12 @@ class SampleClassImpl(ISampleClass):
         """
 
         return "Hi Mom"
+
+    def say_hi_to_dad(self) -> int:
+        """
+        Same as above
+
+        :returns: Int
+        """
+
+        return 0
