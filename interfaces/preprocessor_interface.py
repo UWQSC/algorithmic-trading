@@ -13,7 +13,7 @@ class IPreProcessData(ABC):
     """
 
     @abstractmethod
-    def load_data(): 
+    def load_data(file_path): 
         """ 
 	This function saves the DataFrame to Parquet for efficient storage.
 
@@ -24,7 +24,7 @@ class IPreProcessData(ABC):
 
 
     @abstractmethod
-    def missing_values():
+    def missing_values(dataframe, strategy):
         """
         Dataset can contain missing values. These values may be indicated by a null value, or a impossible integer
 	(say -99 in a dataset of heights of people in Canada in cm). It is important to remove these missing values
@@ -36,7 +36,7 @@ class IPreProcessData(ABC):
     raise RuntimeError("Method Not Implemented") 
 
     @abstractmethod
-    def remove_duplicate_timestamps():
+    def remove_duplicate_timestamps(dataframe, column):
         """
         Dataset may contain duplicate timestamp values.  It is important to remove the duplicated values
 	in cases where having them is harmful for training the model. Note that it is not always required,
@@ -48,7 +48,7 @@ class IPreProcessData(ABC):
         raise RuntimeError("Method Not Implemented") 
 
     @abstractmethod
-    def remove_outliers():
+    def remove_outliers(dataframe, column, method):
         """
 	Dataset may contain stocks that have price spikes. These outliers generally skew the training process
 	of an algorithm, and should be accounted for when setting up an algorithm. Z-score method will be used
