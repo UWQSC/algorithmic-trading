@@ -3,7 +3,7 @@ This file serves as a standardized interface for data preprocessing and ensures 
 implements this interface which includes preprocessing steps.
 """
 
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod 
 
 class IPreProcessData(ABC):
     """
@@ -35,32 +35,7 @@ class IPreProcessData(ABC):
 
     raise RuntimeError("Method Not Implemented") 
 
-    @abstractmethod
-    def remove_duplicate_timestamps(dataframe, column):
-        """
-        Dataset may contain duplicate timestamp values.  It is important to remove the duplicated values
-	in cases where having them is harmful for training the model. Note that it is not always required,
-	as some indicators benefit from duplications.
-
-	:side-effect: modifies a parquet file.
-        """
-
-        raise RuntimeError("Method Not Implemented") 
-
-    @abstractmethod
-    def remove_outliers(dataframe, column, method):
-        """
-	Dataset may contain stocks that have price spikes. These outliers generally skew the training process
-	of an algorithm, and should be accounted for when setting up an algorithm. Z-score method will be used
-	to remove price spikes.
-	
-	:side-effect: modifies a parquet file.
-        """
-
-        raise RuntimeError("Method Not Implemented") 
     
 
-
-    
 
 
