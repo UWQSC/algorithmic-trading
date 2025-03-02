@@ -1,5 +1,5 @@
 """
-TODO
+This file stores bare-bones information required for any Stock Prediction Algorithm to follow.
 """
 
 from abc import ABC, abstractmethod
@@ -14,7 +14,9 @@ from src.common.config import INTERFACE_NOT_IMPLEMENTED_ERROR
 
 class StockPosition(Enum):
     """
-    TODO
+    Enumeration class made to store the information about stock positions.
+    Normally, the market can be defined as Bullish, Bearish or Trailing Sideways.
+    Similarly, a person's stock position can be defined with hold, short, long, etc.
     """
 
     SHORT = -1
@@ -24,7 +26,7 @@ class StockPosition(Enum):
 
 class IAlgorithm(ABC):
     """
-    TODO
+    Essential functions shared by all algorithmic trading algorithms.
     """
 
     def __init__(self,
