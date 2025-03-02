@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional
 
 from pandas import DataFrame
 
-from interfaces.preprocessor_interface import IPreProcessData
+from interfaces.preprocessing.preprocessor_interface import IPreProcessData
 from src.common.config import INTERFACE_NOT_IMPLEMENTED_ERROR
 
 
