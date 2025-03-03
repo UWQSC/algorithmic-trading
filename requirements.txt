@@ -2,10 +2,11 @@ matplotlib==3.7.0
 numpy==1.26.4
 pandas==2.0.3 
 tensorflow==2.18.0
-keras==3.6.0
+keras==3.8.0
 torch==2.5.1
 scikit-learn==1.6.0rc1
 seaborn==0.13.2
 statsmodels==0.14.4
 coverage==7.6.4
 fastparquet==2024.11.0
+yfinance==0.2.54

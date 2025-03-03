@@ -9,6 +9,8 @@ base class must be decorated with @abstractmethod. Following is an example for t
 """
 
 from abc import ABC, abstractmethod
+from src.common.config import INTERFACE_NOT_IMPLEMENTED_ERROR
+
 
 class ISampleClass(ABC):
     """
@@ -27,7 +29,7 @@ class ISampleClass(ABC):
         :returns: This will return a String object.
         """
 
-        raise RuntimeError("Method Not Implemented")
+        raise INTERFACE_NOT_IMPLEMENTED_ERROR
 
     @abstractmethod
     def say_hi_to_dad(self) -> int:
@@ -37,4 +39,4 @@ class ISampleClass(ABC):
         :return: Int
         """
 
-        raise RuntimeError("Method Not Implemented")
+        raise INTERFACE_NOT_IMPLEMENTED_ERROR
