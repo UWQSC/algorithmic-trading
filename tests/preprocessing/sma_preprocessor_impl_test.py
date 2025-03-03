@@ -9,7 +9,7 @@ import pandas as pd
 from src.preprocessing.sma_preprocessor_impl import SMAPreProcessorImpl
 
 
-class SmaPreprocessorImplTest(unittest.TestCase):
+class SMAPreprocessorImplTest(unittest.TestCase):
     """
     This class is used to test each component of Simple Moving Average's preprocessor
     """
