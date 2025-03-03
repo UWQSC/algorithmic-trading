@@ -4,7 +4,6 @@ Implementation of the Simple Moving Average (SMA) algorithm.
 
 import random
 from typing import Dict, List, Any
-import matplotlib.pyplot as plt
 
 import numpy as np
 import pandas as pd
@@ -52,14 +51,15 @@ class SimpleMovingAverageImpl(IAlgorithm):
                     self.__positions__[ticker] = StockPosition.SHORT
 
     def calculate_position_size(self, ticker: str, price: float, portfolio_value: float) -> float:
-        base_position_size = self.parameters['position_size'] * portfolio_value
+        base_position_size: float = self.parameters['position_size'] * portfolio_value
+        position_size: float = 0.0
 
-        if self.__positions__[ticker] == StockPosition.HOLD:
-            return 0.0
-        elif self.__positions__[ticker] == StockPosition.LONG:
-            return base_position_size / price
+        if self.__positions__[ticker] == StockPosition.LONG:
+            position_size = base_position_size / price
+        elif self.__positions__[ticker] == StockPosition.SHORT:
+            position_size = -1 * (base_position_size / price)
 
-        return -1 * (base_position_size / price)
+        return position_size
 
     def execute_trades(self, capital: float) -> pd.DataFrame:
         portfolio = pd.DataFrame(index=self.__data__.index)

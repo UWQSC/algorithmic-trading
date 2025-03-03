@@ -1,11 +1,12 @@
 """
-
+Before running the Simple Moving Average Algorithm, we must prepare the data for it.
+This file contains the logic behind preprocessing data specifically for Simple Moving Average.
 """
+
+from typing import List
 
 import pandas as pd
 import yfinance as yf
-
-from typing import List
 
 from interfaces.preprocessing.preprocessor_interface import IPreProcessData
 
