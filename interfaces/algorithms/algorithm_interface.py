@@ -50,30 +50,32 @@ class IAlgorithm(ABC):
         self.__positions__ = {ticker: StockPosition.HOLD for ticker in tickers}
         self.metrics = {}
         self.__data__: Optional[DataFrame] = None
+        self.executing: bool = False
+        self.__trade_count__: int = 0
 
     @abstractmethod
-    def generate_signals(self) -> List[StockPosition]:
+    def generate_signals(self, data: DataFrame):
         """
         Generate trading signals based on processed market data.
 
-        :returns: List of trading signals that are associated with each ticker.
+        :param data: DataFrame represents the current processed market data
+
+        :side-effect: Changes positions of the algorithm.
         """
 
         raise INTERFACE_NOT_IMPLEMENTED_ERROR
 
     @abstractmethod
     def calculate_position_size(self,
-                                signal: StockPosition,
                                 ticker: str,
                                 price: float,
                                 portfolio_value: float) -> float:
         """
         Calculate position size for a trade.
 
-        :param signal: StockPosition. (SHORT, HOLD, LONG)
-        :param ticker: String. Trading symbol
-        :param price: Float. Current price
-        :param portfolio_value: Float. Current portfolio value
+        :param ticker: String that represents trading symbol
+        :param price: Float that represents current price
+        :param portfolio_value: Float that represents current portfolio value
 
         :returns: Size of the position to be played.
         """
@@ -81,9 +83,11 @@ class IAlgorithm(ABC):
         raise INTERFACE_NOT_IMPLEMENTED_ERROR
 
     @abstractmethod
-    def execute_trades(self) -> DataFrame:
+    def execute_trades(self, capital: float) -> DataFrame:
         """
         Execute trades based on signals and manage portfolio.
+
+        :param capital: Value of cash allocated to the algorithm
 
         :returns: DataFrame with portfolio performance
         """
@@ -110,7 +114,7 @@ class IAlgorithm(ABC):
         if self.__data__ is None:
             self.__data__ = self.__data_processor__.process_data()
 
-    def run(self) -> Dict[str, Any]:
+    def run(self, capital: float) -> Dict[str, Any]:
         """
         Run the algorithm, optionally preparing data first.
 
@@ -118,13 +122,20 @@ class IAlgorithm(ABC):
         """
 
         self.prepare_data()
-        signals = self.generate_signals()
-        portfolio = self.execute_trades()
+        portfolio = self.execute_trades(capital)
         self.metrics = self.calculate_metrics(portfolio)
 
-        return {
-            'signals': signals,
+        results = {
+            'signals': self.__positions__,
             'portfolio': portfolio,
             'metrics': self.metrics,
             'data': self.__data__
         }
+
+        print("==============================================")
+        print(f"{self.name}:")
+        for metric, value in results['metrics'].items():
+            print(f"{metric}: {value}")
+        print("==============================================")
+
+        return results
