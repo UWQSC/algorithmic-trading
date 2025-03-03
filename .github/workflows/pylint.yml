@@ -28,5 +28,5 @@ jobs:
             --fail-under=7.0 \
             --max-args=10 \
             --max-positional-arguments=10 \
-            --max-attributes=10\
+            --max-attributes=10 \
             $(git ls-files '*.py')
