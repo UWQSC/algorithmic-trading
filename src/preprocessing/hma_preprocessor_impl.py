@@ -8,7 +8,7 @@ from interfaces.preprocessing.preprocessor_interface import IPreProcessData
 
 class HMMPreProcessorImpl(IPreProcessData):
     """
-    Data preprocessor for the SMA Crossover algorithm.
+    Data preprocessor for the Hidden Markov Model algorithm.
     """
 
     def load_data(self):
