@@ -7,7 +7,7 @@ from typing import Dict, List, Any
 from pandas import DataFrame
 
 from interfaces.algorithms.algorithm_interface import IAlgorithm
-from src.preprocessing.hma_preprocessor_impl import HMMPreProcessorImpl
+from src.preprocessing.hmm_preprocessor_impl import HMMPreProcessorImpl
 
 
 class HiddenMarkovModelImpl(IAlgorithm):
