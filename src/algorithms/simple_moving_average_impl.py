@@ -75,7 +75,7 @@ class SimpleMovingAverageImpl(IAlgorithm):
             for ticker in self.tickers:
                 price_col = f"{ticker}_price"
 
-                current_price: float = self.__data__.loc[date, price_col][ticker]
+                current_price: float = self.__data__.at[date, price_col]
                 current_portfolio_value = portfolio.loc[date, 'capital']
 
                 position_size = self.calculate_position_size(
