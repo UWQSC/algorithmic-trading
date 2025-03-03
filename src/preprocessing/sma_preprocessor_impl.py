@@ -13,7 +13,7 @@ from interfaces.preprocessing.preprocessor_interface import IPreProcessData
 
 class SMAPreProcessorImpl(IPreProcessData):
     """
-    Data preprocessor for the SMA Crossover algorithm.
+    Data preprocessor for the Simple Moving Average algorithm.
     """
 
     def __init__(self,
