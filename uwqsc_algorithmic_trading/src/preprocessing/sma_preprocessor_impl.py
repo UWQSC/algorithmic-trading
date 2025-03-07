@@ -8,7 +8,8 @@ from typing import List
 import pandas as pd
 import yfinance as yf
 
-from interfaces.preprocessing.preprocessor_interface import IPreProcessData
+from uwqsc_algorithmic_trading.interfaces.preprocessing.preprocessor_interface \
+    import IPreProcessData
 
 
 class SMAPreProcessorImpl(IPreProcessData):

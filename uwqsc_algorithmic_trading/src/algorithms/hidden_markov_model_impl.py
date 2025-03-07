@@ -6,8 +6,8 @@ from typing import Dict, List, Any
 
 from pandas import DataFrame
 
-from interfaces.algorithms.algorithm_interface import IAlgorithm
-from src.preprocessing.hmm_preprocessor_impl import HMMPreProcessorImpl
+from uwqsc_algorithmic_trading.interfaces.algorithms.algorithm_interface import IAlgorithm
+from uwqsc_algorithmic_trading.src.preprocessing.hmm_preprocessor_impl import HMMPreProcessorImpl
 
 
 class HiddenMarkovModelImpl(IAlgorithm):

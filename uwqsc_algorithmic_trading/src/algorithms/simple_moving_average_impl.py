@@ -8,8 +8,9 @@ from typing import Dict, List, Any
 import numpy as np
 import pandas as pd
 
-from interfaces.algorithms.algorithm_interface import IAlgorithm, StockPosition
-from src.preprocessing.sma_preprocessor_impl import SMAPreProcessorImpl
+from uwqsc_algorithmic_trading.interfaces.algorithms.algorithm_interface \
+    import IAlgorithm, StockPosition
+from uwqsc_algorithmic_trading.src.preprocessing.sma_preprocessor_impl import SMAPreProcessorImpl
 
 
 class SimpleMovingAverageImpl(IAlgorithm):

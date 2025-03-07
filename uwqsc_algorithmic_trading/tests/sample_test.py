@@ -4,8 +4,8 @@ Sample test file
 
 import unittest
 
-from interfaces.sample_interface import ISampleClass
-from src.sample_impl import SampleClassImpl
+from uwqsc_algorithmic_trading.interfaces.sample_interface import ISampleClass
+from uwqsc_algorithmic_trading.src.sample_impl import SampleClassImpl
 
 
 class SampleTest(unittest.TestCase):

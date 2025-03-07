@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "uwqsc-algorithmic-trading"
-version = "2025.3.7"
+version = "2025.3.7-2"
 dependencies = [
     "matplotlib==3.7.0",
     "numpy==1.26.4",
@@ -36,9 +36,8 @@ classifiers = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["src*", "interfaces*"]
-exclude = ["tests*"]
+include = ["uwqsc_algorithmic_trading*"]
+exclude = ["uwqsc_algorithmic_trading.tests*"] 
 
 [project.urls]
 Homepage = "https://github.com/UWQSC/algorithmic-trading"
