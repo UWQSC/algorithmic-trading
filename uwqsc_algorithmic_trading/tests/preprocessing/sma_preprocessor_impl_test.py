@@ -6,7 +6,7 @@ import unittest
 import datetime as dt
 import pandas as pd
 
-from src.preprocessing.sma_preprocessor_impl import SMAPreProcessorImpl
+from uwqsc_algorithmic_trading.src.preprocessing.sma_preprocessor_impl import SMAPreProcessorImpl
 
 
 class SMAPreprocessorImplTest(unittest.TestCase):

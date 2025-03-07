@@ -95,7 +95,7 @@ and then add `algo-trading-team` as reviewers.
 make
 ```
 
-- To see unit test writing convention, please refer to [Python Sample Test File](tests/sample_test.py)
+- To see unit test writing convention, please refer to [Python Sample Test File](uwqsc_algorithmic_trading/tests/sample_test.py)
 
 ###### Running GitHub Workflows Locally
 

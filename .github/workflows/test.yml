@@ -26,8 +26,8 @@ jobs:
           pip install -r requirements.txt
       - name: Test
         run: |
-          python -m unittest discover tests -p '*_test.py'
+          python -m unittest discover uwqsc_algorithmic_trading/tests -p '*_test.py'
       - name: View Coverage
         run: |
-          coverage run --source=src -m unittest discover tests -p '*_test.py'
+          coverage run --source=uwqsc_algorithmic_trading/src -m unittest discover uwqsc_algorithmic_trading/tests -p '*_test.py'
           coverage report -m
