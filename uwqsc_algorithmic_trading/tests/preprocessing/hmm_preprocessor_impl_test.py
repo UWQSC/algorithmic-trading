@@ -6,26 +6,10 @@ import unittest
 import datetime as dt
 import pandas as pd
 
-from uwqsc_algorithmic_trading.src.preprocessing.hmm_preprocessor_impl import HMMPreProcessorImpl
-
-
 class HMMPreprocessorImplTest(unittest.TestCase):
     """
     This class is used to test each component of Hidden Markov Model's preprocessor
     """
-
-    def setUp(self):
-        self.tickers = ["AAPL"]
-        self.end_date = dt.datetime.now().strftime("%Y-%m-%d")
-        self.start_date = (dt.datetime.now() - dt.timedelta(days=365 * 2)).strftime("%Y-%m-%d")
-        self.short_window = 2
-        self.long_window = 3
-
-        self.preprocessor = HMMPreProcessorImpl(self.tickers,
-                                                self.start_date,
-                                                self.end_date,
-                                                self.short_window,
-                                                self.long_window)
 
     def test_missing_values_extrapolates_na_values(self):
         """
