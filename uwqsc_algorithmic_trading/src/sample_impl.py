@@ -8,7 +8,7 @@ You can implement an abstract class by inheriting from it. Functions of abstract
 base class must be decorated with @abstractmethod. Following is an example for the same.
 """
 
-from interfaces.sample_interface import ISampleClass
+from uwqsc_algorithmic_trading.interfaces.sample_interface import ISampleClass
 
 
 class SampleClassImpl(ISampleClass):
@@ -20,8 +20,8 @@ class SampleClassImpl(ISampleClass):
     def say_hi_to_mom(self) -> str:
         """
         We are "implementing" the interfaces' defined functions. This is what other people will use,
-        but not see. 
-        
+        but not see.
+
         :returns: String
         """
 

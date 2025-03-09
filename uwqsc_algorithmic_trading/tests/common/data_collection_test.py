@@ -5,8 +5,9 @@ This python file tests the data collection module and the constants.
 import unittest
 import os.path
 
-from src.common.data_collection import setup_data
-from src.common.config import SRC_DIR, COMMON_DIR, DATA_DIR, PROJECT_DIR
+from uwqsc_algorithmic_trading.src.common.data_collection import setup_data
+from uwqsc_algorithmic_trading.src.common.config import SRC_DIR, COMMON_DIR, DATA_DIR, PROJECT_DIR
+
 
 class DataCollectionTests(unittest.TestCase):
     """
