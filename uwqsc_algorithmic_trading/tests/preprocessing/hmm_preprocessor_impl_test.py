@@ -3,6 +3,10 @@ Testing the Hidden Markov Model Preprocessor
 """
 
 import unittest
+import datetime as dt
+import pandas as pd
+
+from uwqsc_algorithmic_trading.src.preprocessing.hmm_preprocessor_impl import HMMPreProcessorImpl
 
 
 class HMMPreprocessorImplTest(unittest.TestCase):
@@ -10,14 +14,37 @@ class HMMPreprocessorImplTest(unittest.TestCase):
     This class is used to test each component of Hidden Markov Model's preprocessor
     """
 
+    def setUp(self):
+        self.tickers = ["AAPL"]
+        self.end_date = dt.datetime.now().strftime("%Y-%m-%d")
+        self.start_date = (dt.datetime.now() - dt.timedelta(days=365 * 2)).strftime("%Y-%m-%d")
+        self.short_window = 2
+        self.long_window = 3
+
+        self.preprocessor = HMMPreProcessorImpl(self.tickers,
+                                                self.start_date,
+                                                self.end_date,
+                                                self.short_window,
+                                                self.long_window)
+
     def test_missing_values_extrapolates_na_values(self):
         """
         Testing that missing values are correctly handled
         """
         
-        self.preprocessor.load_data()
-        self.preprocessor.__processed_data__.loc[self.start_date] = [None for _ in self.tickers]
-        self.preprocessor.missing_values()
-        is_na_in_data = self.preprocessor.__processed_data__.isna().any()
-        is_na_in_data = is_na_in_data.to_list()
-        self.assertFalse(is_na_in_data[0])
+    dates = pd.date_range(start=self.start_date, end=self.end_date, freq='D')
+    price_data = [100 + i for i in range(len(dates))] 
+
+    self.preprocessor.__processed_data__ = pd.DataFrame(
+        {self.tickers[0]: price_data}, index=dates
+    )
+
+    self.preprocessor.__processed_data__.iloc[5] = None
+    self.preprocessor.__processed_data__.iloc[15] = None
+
+     self.assertTrue(self.preprocessor.__processed_data__.isna().any().any())
+
+    self.preprocessor.missing_values()
+
+    self.assertFalse(self.preprocessor.__processed_data__.isna().any().any())
+
