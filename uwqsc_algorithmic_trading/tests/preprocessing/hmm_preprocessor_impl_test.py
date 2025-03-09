@@ -3,6 +3,10 @@ Testing the Hidden Markov Model Preprocessor
 """
 import pandas as pd
 import unittest
+import datetime as dt
+import pandas as pd
+
+from uwqsc_algorithmic_trading.src.preprocessing.hmm_preprocessor_impl import HMMPreProcessorImpl
 
 
 class HMMPreprocessorImplTest(unittest.TestCase):
@@ -11,6 +15,7 @@ class HMMPreprocessorImplTest(unittest.TestCase):
     """
 def test_remove_duplicate_timestamps_removes_duplicates(self):
 
+<<<<<<< HEAD
     # Create a DataFrame with duplicate 'Date' entries.
     data = pd.DataFrame({
         'Date': ['2025-03-13', '2025-03-13', '2025-03-14', '2025-03-15', '2025-03-15'],
@@ -31,3 +36,39 @@ def test_remove_duplicate_timestamps_removes_duplicates(self):
 
     # Assert that the size is reduced after duplicates are removed.
     self.assertTrue(new_size < raw_size)    
+=======
+    def setUp(self):
+        self.tickers = ["AAPL"]
+        self.end_date = dt.datetime.now().strftime("%Y-%m-%d")
+        self.start_date = (dt.datetime.now() - dt.timedelta(days=365 * 2)).strftime("%Y-%m-%d")
+        self.short_window = 2
+        self.long_window = 3
+
+        self.preprocessor = HMMPreProcessorImpl(self.tickers,
+                                                self.start_date,
+                                                self.end_date,
+                                                self.short_window,
+                                                self.long_window)
+
+    def test_missing_values_extrapolates_na_values(self):
+        """
+        Testing that missing values are correctly handled
+        """
+        
+    dates = pd.date_range(start=self.start_date, end=self.end_date, freq='D')
+    price_data = [100 + i for i in range(len(dates))] 
+
+    self.preprocessor.__processed_data__ = pd.DataFrame(
+        {self.tickers[0]: price_data}, index=dates
+    )
+
+    self.preprocessor.__processed_data__.iloc[5] = None
+    self.preprocessor.__processed_data__.iloc[15] = None
+
+     self.assertTrue(self.preprocessor.__processed_data__.isna().any().any())
+
+    self.preprocessor.missing_values()
+
+    self.assertFalse(self.preprocessor.__processed_data__.isna().any().any())
+
+>>>>>>> 3fb1695 (Update unit tests for missing values function for HMM pre-processor)
