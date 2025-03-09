@@ -1,42 +1,12 @@
-"""
-Testing the Hidden Markov Model Preprocessor
-"""
 import pandas as pd
 import unittest
 import datetime as dt
 import pandas as pd
 
-from uwqsc_algorithmic_trading.src.preprocessing.hmm_preprocessor_impl import HMMPreProcessorImpl
-
-
 class HMMPreprocessorImplTest(unittest.TestCase):
     """
     This class is used to test each component of Hidden Markov Model's preprocessor
     """
-def test_remove_duplicate_timestamps_removes_duplicates(self):
-
-<<<<<<< HEAD
-    # Create a DataFrame with duplicate 'Date' entries.
-    data = pd.DataFrame({
-        'Date': ['2025-03-13', '2025-03-13', '2025-03-14', '2025-03-15', '2025-03-15'],
-        'Price': [10, 10, 20, 30, 30]
-    })
-
-    # Inject the dummy data into the preprocessor.
-    # Note: __raw_data__ and __processed_data__ are defined in the base class and we access them via name mangling.
-    self.preprocessor._IPreProcessData__raw_data__ = data
-    self.preprocessor._IPreProcessData__processed_data__ = data.copy()
-
-    raw_size = self.preprocessor._IPreProcessData__raw_data__.size
-
-    # Call the function under test.
-    self.preprocessor.remove_duplicate_timestamps()
-
-    new_size = self.preprocessor._IPreProcessData__processed_data__.size
-
-    # Assert that the size is reduced after duplicates are removed.
-    self.assertTrue(new_size < raw_size)    
-=======
     def setUp(self):
         self.tickers = ["AAPL"]
         self.end_date = dt.datetime.now().strftime("%Y-%m-%d")
@@ -50,25 +20,44 @@ def test_remove_duplicate_timestamps_removes_duplicates(self):
                                                 self.short_window,
                                                 self.long_window)
 
+    def test_remove_duplicate_timestamps_removes_duplicates(self):
+        # Create a DataFrame with duplicate 'Date' entries.
+        data = pd.DataFrame({
+            'Date': ['2025-03-13', '2025-03-13', '2025-03-14', '2025-03-15', '2025-03-15'],
+            'Price': [10, 10, 20, 30, 30]
+        })
+
+        # Inject the dummy data into the preprocessor.
+        # Note: __raw_data__ and __processed_data__ are defined in the base class and we access them via name mangling.
+        self.preprocessor._IPreProcessData__raw_data__ = data
+        self.preprocessor._IPreProcessData__processed_data__ = data.copy()
+
+        raw_size = self.preprocessor._IPreProcessData__raw_data__.size
+
+        # Call the function under test.
+        self.preprocessor.remove_duplicate_timestamps()
+
+        new_size = self.preprocessor._IPreProcessData__processed_data__.size
+
+        # Assert that the size is reduced after duplicates are removed.
+        self.assertTrue(new_size < raw_size)    
+
     def test_missing_values_extrapolates_na_values(self):
         """
         Testing that missing values are correctly handled
         """
-        
-    dates = pd.date_range(start=self.start_date, end=self.end_date, freq='D')
-    price_data = [100 + i for i in range(len(dates))] 
+        dates = pd.date_range(start=self.start_date, end=self.end_date, freq='D')
+        price_data = [100 + i for i in range(len(dates))]
 
-    self.preprocessor.__processed_data__ = pd.DataFrame(
-        {self.tickers[0]: price_data}, index=dates
-    )
+        self.preprocessor.__processed_data__ = pd.DataFrame(
+            {self.tickers[0]: price_data}, index=dates
+        )
 
-    self.preprocessor.__processed_data__.iloc[5] = None
-    self.preprocessor.__processed_data__.iloc[15] = None
+        self.preprocessor.__processed_data__.iloc[5] = None
+        self.preprocessor.__processed_data__.iloc[15] = None
 
-     self.assertTrue(self.preprocessor.__processed_data__.isna().any().any())
+        self.assertTrue(self.preprocessor.__processed_data__.isna().any().any())
 
-    self.preprocessor.missing_values()
+        self.preprocessor.missing_values()
 
-    self.assertFalse(self.preprocessor.__processed_data__.isna().any().any())
-
->>>>>>> 3fb1695 (Update unit tests for missing values function for HMM pre-processor)
+        self.assertFalse(self.preprocessor.__processed_data__.isna().any().any())
