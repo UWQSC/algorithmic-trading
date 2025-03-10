@@ -3,6 +3,8 @@ import unittest
 import datetime as dt
 import pandas as pd
 
+from uwqsc_algorithmic_trading.src.preprocessing.hmm_preprocessor_impl import HMMPreProcessorImpl
+
 class HMMPreprocessorImplTest(unittest.TestCase):
     """
     This class is used to test each component of Hidden Markov Model's preprocessor
@@ -44,7 +46,7 @@ class HMMPreprocessorImplTest(unittest.TestCase):
 
     def test_missing_values_extrapolates_na_values(self):
         """
-        Testing that missing values are correctly handled
+        Test that missing values are correctly handled by missing_values().
         """
         dates = pd.date_range(start=self.start_date, end=self.end_date, freq='D')
         price_data = [100 + i for i in range(len(dates))]
