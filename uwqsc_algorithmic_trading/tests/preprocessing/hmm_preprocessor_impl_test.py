@@ -35,13 +35,9 @@ class HMMPreprocessorImplTest(unittest.TestCase):
         self.preprocessor.__processed_data__.iloc[5] = None
         self.preprocessor.__processed_data__.iloc[15] = None
 
-        self.preprocessor.missing_values = MagicMock()
-
         self.preprocessor.__processed_data__.fillna(method='ffill', inplace=True)
 
         self.preprocessor.missing_values()
-
-        self.preprocessor.missing_values.assert_called_once()
 
         self.assertFalse(self.preprocessor.__processed_data__.isna().any().any())
 
