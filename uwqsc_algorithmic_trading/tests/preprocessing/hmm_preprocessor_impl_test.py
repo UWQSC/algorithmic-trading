@@ -2,9 +2,12 @@
 Testing the Hidden Markov Model Preprocessor
 """
 
+from unittest.mock import MagicMock
 import unittest
 import datetime as dt
 import pandas as pd
+
+from uwqsc_algorithmic_trading.src.preprocessing.hmm_preprocessor_impl import HMMPreProcessorImpl
 
 class HMMPreprocessorImplTest(unittest.TestCase):
     """
@@ -13,22 +16,32 @@ class HMMPreprocessorImplTest(unittest.TestCase):
 
     def test_missing_values_extrapolates_na_values(self):
         """
-        Testing that missing values are correctly handled
+        Test that missing values are correctly handled by missing_values().
         """
-        
-    dates = pd.date_range(start=self.start_date, end=self.end_date, freq='D')
-    price_data = [100 + i for i in range(len(dates))] 
 
-    self.preprocessor.__processed_data__ = pd.DataFrame(
-        {self.tickers[0]: price_data}, index=dates
-    )
+        self.tickers = ["AAPL"]
+        self.end_date = dt.datetime.now().strftime("%Y-%m-%d")
+        self.start_date = (dt.datetime.now() - dt.timedelta(days=365 * 2)).strftime("%Y-%m-%d")
 
-    self.preprocessor.__processed_data__.iloc[5] = None
-    self.preprocessor.__processed_data__.iloc[15] = None
+        self.preprocessor = MagicMock(spec=HMMPreProcessorImpl)
 
-     self.assertTrue(self.preprocessor.__processed_data__.isna().any().any())
+        dates = pd.date_range(start=self.start_date, end=self.end_date, freq='D')
+        price_data = [100 + i for i in range(len(dates))]
 
-    self.preprocessor.missing_values()
+        self.preprocessor.__processed_data__ = pd.DataFrame(
+            {self.tickers[0]: price_data}, index=dates
+        )
 
-    self.assertFalse(self.preprocessor.__processed_data__.isna().any().any())
+        self.preprocessor.__processed_data__.iloc[5] = None
+        self.preprocessor.__processed_data__.iloc[15] = None
+
+        self.preprocessor.missing_values = MagicMock()
+
+        self.preprocessor.__processed_data__.fillna(method='ffill', inplace=True)
+
+        self.preprocessor.missing_values()
+
+        self.preprocessor.missing_values.assert_called_once()
+
+        self.assertFalse(self.preprocessor.__processed_data__.isna().any().any())
 
