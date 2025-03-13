@@ -6,8 +6,8 @@ from unittest.mock import MagicMock
 import unittest
 import datetime as dt
 import pandas as pd
-
-from uwqsc_algorithmic_trading.src.preprocessing.hmm_preprocessor_impl import HMMPreProcessorImpl
+# uwqsc_algorithmic_trading.
+from src.preprocessing.hmm_preprocessor_impl import HMMPreProcessorImpl
 
 class HMMPreprocessorImplTest(unittest.TestCase):
     """
@@ -23,7 +23,7 @@ class HMMPreprocessorImplTest(unittest.TestCase):
         self.end_date = dt.datetime.now().strftime("%Y-%m-%d")
         self.start_date = (dt.datetime.now() - dt.timedelta(days=365 * 2)).strftime("%Y-%m-%d")
 
-        self.preprocessor = MagicMock(spec=HMMPreProcessorImpl)
+        self.preprocessor = HMMPreProcessorImpl()
 
         dates = pd.date_range(start=self.start_date, end=self.end_date, freq='D')
         price_data = [100 + i for i in range(len(dates))]
