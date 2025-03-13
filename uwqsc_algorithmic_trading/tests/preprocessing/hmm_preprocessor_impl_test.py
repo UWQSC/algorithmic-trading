@@ -58,12 +58,11 @@ class HMMPreprocessorImplTest(unittest.TestCase):
         self.preprocessor.__processed_data__.iloc[5] = None
         self.preprocessor.__processed_data__.iloc[15] = None
 
-<<<<<<< HEAD
+        # Ensure missing values exist before processing
         self.assertTrue(self.preprocessor.__processed_data__.isna().any().any())
-=======
-        self.preprocessor.__processed_data__.fillna(method='ffill', inplace=True)
->>>>>>> fcd38a3 (Update unit tests for missing values function for HMM pre-processor)
 
+        # Call the missing values function
         self.preprocessor.missing_values()
 
+        # Assert that missing values have been handled (extrapolated)
         self.assertFalse(self.preprocessor.__processed_data__.isna().any().any())
