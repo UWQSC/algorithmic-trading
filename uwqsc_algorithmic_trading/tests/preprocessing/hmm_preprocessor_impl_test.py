@@ -2,8 +2,8 @@ import pandas as pd
 import unittest
 import datetime as dt
 import pandas as pd
-
-from uwqsc_algorithmic_trading.src.preprocessing.hmm_preprocessor_impl import HMMPreProcessorImpl
+# uwqsc_algorithmic_trading.
+from src.preprocessing.hmm_preprocessor_impl import HMMPreProcessorImpl
 
 class HMMPreprocessorImplTest(unittest.TestCase):
     """
