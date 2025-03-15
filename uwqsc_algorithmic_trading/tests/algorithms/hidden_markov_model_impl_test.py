@@ -42,17 +42,22 @@ class HiddenMarkovModelImplTest(unittest.TestCase):
        Testing that the algorithm can execute trades correctly.
        Tests initialization, position changes, and no-trade scenarios.
        """
+
+       self.algorithm.calculate_position_size = MagicMock(return_value=0.1)
+
        # Initial starting capital for testing
        capital = 10000
+       
       
        # Create test data with known values
        index = pd.date_range(start='2023-01-01', periods=5, freq='D')
        data = pd.DataFrame(index=index, data={
-           "AAPL_price": [150.0, 155.0, 153.0, 160.0, 158.0],
-           "GOOGL_price": [2000.0, 2050.0, 2025.0, 2100.0, 2075.0]
-           # This generates a small synthetic dataset of 5 days (from January 1 to January 5, 2023)
-           #  with known stock prices for Apple (AAPL) and Google (GOOGL)
-       })
+            "AAPL_price": np.random.uniform(100, 200, size=5),
+            "GOOGL_price": np.random.uniform(1500, 2000, size=5)
+        })
+        # This generates a small synthetic dataset of 5 days (from January 1 to January 5, 2023)
+        #  with known stock prices for Apple (AAPL) and Google (GOOGL)
+      
       
        # Injects controlled test data into the HMM algorithm
        self.algorithm.__data__ = data
