@@ -30,8 +30,4 @@ def test_remove_duplicate_timestamps_removes_duplicates(self):
     new_size = self.preprocessor._IPreProcessData__processed_data__.size
 
     # Assert that the size is reduced after duplicates are removed.
-    self.assertTrue(new_size < raw_size)
-        
-        
-    
-    
+    self.assertTrue(new_size < raw_size)    
