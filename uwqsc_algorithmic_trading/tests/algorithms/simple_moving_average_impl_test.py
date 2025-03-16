@@ -8,9 +8,10 @@ from unittest.mock import MagicMock
 import numpy as np
 import pandas as pd
 
-from interfaces.algorithms.algorithm_interface import StockPosition
-from src.algorithms.simple_moving_average_impl import SimpleMovingAverageImpl
-from src.preprocessing.sma_preprocessor_impl import SMAPreProcessorImpl
+from uwqsc_algorithmic_trading.interfaces.algorithms.algorithm_interface import StockPosition
+from uwqsc_algorithmic_trading.src.algorithms.simple_moving_average_impl \
+    import SimpleMovingAverageImpl
+from uwqsc_algorithmic_trading.src.preprocessing.sma_preprocessor_impl import SMAPreProcessorImpl
 
 
 class SimpleMovingAverageImplTest(unittest.TestCase):

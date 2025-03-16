@@ -9,7 +9,7 @@ base class must be decorated with @abstractmethod. Following is an example for t
 """
 
 from abc import ABC, abstractmethod
-from src.common.config import INTERFACE_NOT_IMPLEMENTED_ERROR
+from uwqsc_algorithmic_trading.src.common.config import INTERFACE_NOT_IMPLEMENTED_ERROR
 
 
 class ISampleClass(ABC):
