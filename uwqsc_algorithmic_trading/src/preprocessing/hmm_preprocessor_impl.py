@@ -16,7 +16,10 @@ class HMMPreProcessorImpl(IPreProcessData):
         pass
 
     def missing_values(self):
-        pass
+        if self.__processed_data__ is not None:
+            self.__processed_data__ = self.__processed_data__.fillna(method='ffill')
+            self.__processed_data__ = self.__processed_data__.fillna(method='bfill')
+ 
 
     def remove_duplicate_timestamps(self):
         # Use processed data if available, otherwise fall back to raw data.
