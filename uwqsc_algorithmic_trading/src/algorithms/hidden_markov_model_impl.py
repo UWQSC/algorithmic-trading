@@ -17,13 +17,13 @@ class HiddenMarkovModelImpl(IAlgorithm):
 
     def __init__(self,
                  tickers: List[str],
-                 data_processor: HMMPreProcessorImpl,
                  parameters: Dict[str, Any] = None):
         name = "Hidden Markov Model"
+        data_processor = HMMPreProcessorImpl()
 
         super().__init__(name, tickers, data_processor, parameters)
 
-    def generate_signals(self, data: DataFrame):
+    def generate_signals(self, current_data: DataFrame):
         pass
 
     def calculate_position_size(self, ticker: str, price: float, portfolio_value: float) -> float:
@@ -83,4 +83,8 @@ class HiddenMarkovModelImpl(IAlgorithm):
 
     @DeprecationWarning
     def calculate_metrics(self, portfolio: DataFrame) -> Dict[str, float]:
-        pass
+        """
+        Calculate performance metrics based on Hidden Markov Model.
+
+        This function is now deprecated.
+        """

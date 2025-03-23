@@ -12,8 +12,11 @@ class HMMPreProcessorImpl(IPreProcessData):
     Data preprocessor for the Hidden Markov Model algorithm.
     """
 
+    @DeprecationWarning
     def load_data(self):
-        pass
+        """
+        This function is now deprecated.
+        """
 
     def missing_values(self):
         pass

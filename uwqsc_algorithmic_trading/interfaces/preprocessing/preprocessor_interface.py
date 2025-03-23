@@ -22,7 +22,7 @@ class IPreProcessData(ABC):
         Initialize the data preprocessor.
         """
 
-        self.__data_history__ = DataFrame()
+        self.__data_history__ = None
         self.__processed_data__ = None
 
     @abstractmethod
@@ -71,7 +71,7 @@ class IPreProcessData(ABC):
         self.remove_duplicate_timestamps()
         self.remove_outliers()
 
-        if self.__data_history__.empty:
+        if self.__data_history__ is None:
             self.__data_history__ = self.__processed_data__
         else:
             self.__data_history__ = concat([self.__data_history__, self.__processed_data__])

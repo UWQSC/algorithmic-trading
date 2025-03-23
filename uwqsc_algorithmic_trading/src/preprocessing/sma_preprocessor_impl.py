@@ -40,17 +40,14 @@ class SMAPreProcessorImpl(IPreProcessData):
         pass
 
     def remove_outliers(self, rolling_window=20):
-        length_of_history = len(self.__data_history__)
-        previous_short_window = self.short_window
-        previous_long_window = self.long_window
+        length_of_history: int = 0
 
-        if length_of_history < self.short_window:
-            self.short_window = length_of_history
-            rolling_window = length_of_history
-        if length_of_history < self.long_window:
-            self.long_window = length_of_history
+        if self.__data_history__ is not None:
+            length_of_history = len(self.__data_history__)
 
-        if self.__processed_data__ is not None and not self.__data_history__.empty:
+        rolling_window = min(rolling_window, length_of_history)
+
+        if self.__data_history__ is not None and self.__processed_data__ is not None:
             for ticker in self.tickers:
                 price_col = f"{ticker}_price"
 
@@ -63,8 +60,6 @@ class SMAPreProcessorImpl(IPreProcessData):
                 self.__data_history__ = self.__data_history__[~mask]
 
         self.generate_short_long_window()
-        self.short_window = previous_short_window
-        self.long_window = previous_long_window
 
     def generate_short_long_window(self) -> None:
         """
@@ -72,15 +67,23 @@ class SMAPreProcessorImpl(IPreProcessData):
         We calculate them here for each stock.
         """
 
+        length_of_history: int = 0
+
+        if self.__data_history__ is not None:
+            length_of_history = len(self.__data_history__)
+
+        current_short_window = min(self.short_window, length_of_history)
+        current_long_window = min(self.long_window, length_of_history)
+
         for ticker in self.tickers:
             price_col = f"{ticker}_price"
 
             history = pd.concat([self.__data_history__, self.__processed_data__])
 
             self.__processed_data__[f"{ticker}_short"] = (
-                history[price_col].iloc[-self.short_window:].mean()
+                history[price_col].iloc[-current_short_window:].mean()
             )
 
             self.__processed_data__[f"{ticker}_long"] = (
-                history[price_col].iloc[-self.long_window:].mean()
+                history[price_col].iloc[-current_long_window:].mean()
             )
