@@ -13,4 +13,3 @@ yfinance==0.2.54
 setuptools==70.0.0
 build==1.2.2.post1
 twine==6.1.0
-uwqsc-backtesting-framework==2025.3.7

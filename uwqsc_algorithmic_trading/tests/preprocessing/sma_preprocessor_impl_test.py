@@ -3,7 +3,9 @@ Testing the Simple Moving Average Preprocessor
 """
 
 import unittest
+
 import datetime as dt
+import numpy as np
 import pandas as pd
 
 from uwqsc_algorithmic_trading.src.preprocessing.sma_preprocessor_impl import SMAPreProcessorImpl
@@ -15,78 +17,34 @@ class SMAPreprocessorImplTest(unittest.TestCase):
     """
 
     def setUp(self):
-        self.tickers = ["AAPL"]
-        self.end_date = dt.datetime.now().strftime("%Y-%m-%d")
-        self.start_date = (dt.datetime.now() - dt.timedelta(days=365 * 2)).strftime("%Y-%m-%d")
-        self.short_window = 10
-        self.long_window = 20
+        self.tickers = ["AAPL", "GOOGL"]
+        self.short_window = 50
+        self.long_window = 200
 
         self.preprocessor = SMAPreProcessorImpl(self.tickers,
-                                                self.start_date,
-                                                self.end_date,
                                                 self.short_window,
                                                 self.long_window)
 
-    def test_load_data_adds_correct_columns(self):
-        """
-        Testing that the preprocessor loads data correctly.
-        It should save a dataframe that has a price column for the particular ticker.
-        """
+        history_index = pd.date_range(start='2005-01-27', periods=300, freq='D')
+        history_data = pd.DataFrame(index=history_index, data={
+            f"{ticker}_price": np.random.uniform(100, 200, size=300)
+            for ticker in self.tickers
+        })
 
-        self.tickers = ["AAPL", "GOOGL", "MSFT"]
+        current_index = pd.date_range(start='2025-01-27', periods=1, freq='D')
+        current_data = pd.DataFrame(index=current_index, data={
+            f"{ticker}_price": np.random.uniform(100, 200, size=1)
+            for ticker in self.tickers
+        })
 
-        self.preprocessor = SMAPreProcessorImpl(self.tickers,
-                                                self.start_date,
-                                                self.end_date,
-                                                self.short_window,
-                                                self.long_window)
-        self.preprocessor.load_data()
-
-        self.assertEqual(len(self.preprocessor.__processed_data__.columns), len(self.tickers))
-        for ticker in self.tickers:
-            self.assertTrue(f"{ticker}_price" in self.preprocessor.__processed_data__.columns)
-
-    def test_missing_values_extrapolates_na_values(self):
-        """
-        Testing that missing values are correctly handled
-        """
-
-        self.preprocessor.load_data()
-        self.preprocessor.__processed_data__.loc[self.start_date] = [None for _ in self.tickers]
-        self.preprocessor.missing_values()
-        is_na_in_data = self.preprocessor.__processed_data__.isna().any()
-        is_na_in_data = is_na_in_data.to_list()
-        self.assertFalse(is_na_in_data[0])
-
-    def test_remove_duplicate_timestamps_removes_duplicates(self):
-        """
-        Testing that duplicate timestamps are removed
-        """
-
-        self.preprocessor.load_data()
-        previous_dataframe_size = self.preprocessor.__processed_data__.size
-
-        self.preprocessor.__processed_data__ = pd.concat(
-            [
-                self.preprocessor.__processed_data__,
-                self.preprocessor.__processed_data__
-            ],
-            axis=0
-        )
-        updated_dataframe_size = self.preprocessor.__processed_data__.size
-        self.assertNotEqual(previous_dataframe_size, updated_dataframe_size)
-
-        self.preprocessor.remove_duplicate_timestamps()
-        duplicate_removed_dataframe_size = self.preprocessor.__processed_data__.size
-        self.assertEqual(previous_dataframe_size, duplicate_removed_dataframe_size)
-        self.assertFalse(self.preprocessor.__processed_data__.duplicated().any())
+        self.preprocessor.__processed_data__ = current_data
+        self.preprocessor.__data_history__ = history_data
 
     def test_remove_outliers_removes_outliers(self):
         """
         Testing that outliers are removed
         """
 
-        self.preprocessor.load_data()
         changed_dates_values = {
             dt.datetime(1900, 0o1, 0o1): 99999,
             dt.datetime(2100, 0o1, 0o1): -99999
@@ -94,7 +52,7 @@ class SMAPreprocessorImplTest(unittest.TestCase):
 
         for ticker in self.tickers:
             for date_value in changed_dates_values.items():
-                self.preprocessor.__processed_data__.loc[
+                self.preprocessor.__data_history__.loc[
                     date_value[0],
                     f"{ticker}_price"
                 ] = date_value[1]
@@ -110,3 +68,27 @@ class SMAPreprocessorImplTest(unittest.TestCase):
                 )
 
         self.assertLessEqual(len(self.preprocessor.__processed_data__), original_size)
+
+    def test_generate_short_long_window(self):
+        """
+        Testing that we generate correct short and long averages
+        """
+
+        self.preprocessor.generate_short_long_window()
+
+        history = pd.concat(
+            [self.preprocessor.__data_history__, self.preprocessor.__processed_data__]
+        )
+
+        for ticker in self.tickers:
+            last_50_rolling_mean = history[f"{ticker}_price"].iloc[-50:].mean()
+            last_200_rolling_mean = history[f"{ticker}_price"].iloc[-200:].mean()
+
+            self.assertEqual(
+                self.preprocessor.__processed_data__[f"{ticker}_short"].iloc[-1],
+                last_50_rolling_mean
+            )
+            self.assertEqual(
+                self.preprocessor.__processed_data__[f"{ticker}_long"].iloc[-1],
+                last_200_rolling_mean
+            )

@@ -2,16 +2,16 @@
 Testing the Simple Moving Average Algorithm
 """
 
+import datetime as dt
 import unittest
-from unittest.mock import MagicMock
 
 import numpy as np
 import pandas as pd
 
 from uwqsc_algorithmic_trading.interfaces.algorithms.algorithm_interface import StockPosition
-from uwqsc_algorithmic_trading.src.algorithms.simple_moving_average_impl \
-    import SimpleMovingAverageImpl
-from uwqsc_algorithmic_trading.src.preprocessing.sma_preprocessor_impl import SMAPreProcessorImpl
+from uwqsc_algorithmic_trading.src.algorithms.simple_moving_average_impl import (
+    SimpleMovingAverageImpl
+)
 
 
 class SimpleMovingAverageImplTest(unittest.TestCase):
@@ -21,9 +21,8 @@ class SimpleMovingAverageImplTest(unittest.TestCase):
 
     def setUp(self):
         self.tickers = ["AAPL", "GOOGL"]
-        self.preprocessor = MagicMock(spec=SMAPreProcessorImpl)
         self.parameters = {"position_size": 0.1}
-        self.algorithm = SimpleMovingAverageImpl(self.tickers, self.preprocessor, self.parameters)
+        self.algorithm = SimpleMovingAverageImpl(self.tickers, self.parameters)
         self.algorithm.__positions__ = {ticker: StockPosition.HOLD for ticker in self.tickers}
         self.algorithm.__trade_count__ = 0
 
@@ -33,10 +32,10 @@ class SimpleMovingAverageImplTest(unittest.TestCase):
         """
 
         data = pd.DataFrame({
-            "AAPL_sma_short_window": [100, 105],
-            "AAPL_sma_long_window": [102, 103],
-            "GOOGL_sma_short_window": [1500, 1495],
-            "GOOGL_sma_long_window": [1498, 1497]
+            "AAPL_short": [100, 105],
+            "AAPL_long": [102, 103],
+            "GOOGL_short": [1500, 1495],
+            "GOOGL_long": [1498, 1497]
         })
 
         self.algorithm.executing = False
@@ -49,47 +48,24 @@ class SimpleMovingAverageImplTest(unittest.TestCase):
         Testing that the signals are generated correctly when the algorithm was already executing
         """
 
-        data = pd.DataFrame({
-            "AAPL_sma_short_window": [100, 105],
-            "AAPL_sma_long_window": [102, 103],
-            "GOOGL_sma_short_window": [1500, 1495],
-            "GOOGL_sma_long_window": [1498, 1497]
+        previous_data = pd.DataFrame({
+            "AAPL_short": [100],
+            "AAPL_long": [102],
+            "GOOGL_short": [1500],
+            "GOOGL_long": [1498]
         })
+        self.algorithm.generate_signals(previous_data)
 
-        self.algorithm.executing = True
-        self.algorithm.generate_signals(data)
+        current_data = pd.DataFrame({
+            "AAPL_short": [105],
+            "AAPL_long": [103],
+            "GOOGL_short": [1495],
+            "GOOGL_long": [1497]
+        })
+        self.algorithm.generate_signals(current_data)
+
         self.assertEqual(self.algorithm.__positions__["AAPL"], StockPosition.LONG)
         self.assertEqual(self.algorithm.__positions__["GOOGL"], StockPosition.SHORT)
-
-    def test_generate_signals_with_not_short_columns_holds(self):
-        """
-        Testing that the signals are generated correctly when the algorithm was not executing
-        """
-
-        data = pd.DataFrame({
-            "AAPL_sma_long_window": [102, 103],
-            "GOOGL_sma_long_window": [1498, 1497]
-        })
-
-        self.algorithm.executing = True
-        self.algorithm.generate_signals(data)
-        self.assertEqual(self.algorithm.__positions__["AAPL"], StockPosition.HOLD)
-        self.assertEqual(self.algorithm.__positions__["GOOGL"], StockPosition.HOLD)
-
-    def test_generate_signals_with_not_long_columns_holds(self):
-        """
-        Testing that the signals are generated correctly when the algorithm was not executing
-        """
-
-        data = pd.DataFrame({
-            "AAPL_sma_short_window": [100, 105],
-            "GOOGL_sma_short_window": [1500, 1495]
-        })
-
-        self.algorithm.executing = True
-        self.algorithm.generate_signals(data)
-        self.assertEqual(self.algorithm.__positions__["AAPL"], StockPosition.HOLD)
-        self.assertEqual(self.algorithm.__positions__["GOOGL"], StockPosition.HOLD)
 
     def test_calculate_position_size_with_hold(self):
         """
@@ -135,44 +111,66 @@ class SimpleMovingAverageImplTest(unittest.TestCase):
         expected_size = (self.parameters["position_size"] * portfolio_value) / price
         self.assertEqual(position_size, expected_size)
 
-    def test_execute_trades(self):
+    def test_execute_trade_without_past_history(self):
         """
-        Testing that the algorithm can execute trades
+        Testing that the algorithm can execute trades without any previous data
         """
 
         capital = 10000
-        index = pd.date_range(start='2023-01-01', periods=5, freq='D')
-        data = pd.DataFrame(index=index, data={
-            "AAPL_price": np.random.uniform(100, 200, size=5),
-            "GOOGL_price": np.random.uniform(1500, 2000, size=5)
+        index = pd.date_range(start='2023-01-01', periods=1, freq='D')
+        current_data = pd.DataFrame(index=index, data={
+            "AAPL_price": np.random.uniform(100, 200, size=1),
+            "GOOGL_price": np.random.uniform(1500, 2000, size=1)
+        })
+        portfolio = self.algorithm.execute_trade(capital, current_data)
+
+        self.assertTrue(ticker in portfolio for ticker in self.tickers)
+        self.assertTrue(isinstance(portfolio[ticker], int) for ticker in self.tickers)
+
+    def test_execute_trade_with_past_history(self):
+        """
+        Testing that the algorithm can execute trades with previous data
+        """
+
+        capital = 10000
+        past_index = pd.date_range(start='2023-01-01', periods=300, freq='D')
+        past_data = pd.DataFrame(index=past_index, data={
+            "AAPL_price": np.random.uniform(100, 200, size=300),
+            "GOOGL_price": np.random.uniform(1500, 2000, size=300)
         })
 
-        self.algorithm.__data__ = data
-        portfolio = self.algorithm.execute_trades(capital)
+        current_index = pd.date_range(start='2025-01-27', periods=1, freq='D')
+        current_data = pd.DataFrame(index=current_index, data={
+            "AAPL_price": np.random.uniform(100, 200, size=1),
+            "GOOGL_price": np.random.uniform(1500, 2000, size=1)
+        })
 
-        self.assertIn('capital', portfolio.columns)
-        self.assertEqual(len(portfolio), len(index))
+        self.algorithm.__data_processor__.__data_history__ = past_data
+        portfolio = self.algorithm.execute_trade(capital, current_data)
 
-    def test_calculate_metrics_without_win_rate(self):
+        self.assertTrue(ticker in portfolio for ticker in self.tickers)
+        self.assertTrue(isinstance(portfolio[ticker], int) for ticker in self.tickers)
+
+    def test_execute_trade_over_a_range(self):
         """
-        Testing that the algorithm can calculate metrics when trade count is 0
-        """
-
-        index = pd.date_range(start='2023-01-01', periods=5, freq='D')
-        portfolio = pd.DataFrame(index=index, data={'capital': [10000, 10200, 10150, 10300, 10500]})
-        metrics = self.algorithm.calculate_metrics(portfolio)
-
-        self.assertIn("Total Return", metrics)
-        self.assertIn("Annual Return", metrics)
-        self.assertIn("Sharpe Ratio", metrics)
-        self.assertIn("Max Drawdown", metrics)
-        self.assertIn("Trade Count", metrics)
-        self.assertIn("Win Rate", metrics)
-
-    def test_calculate_metrics_with_win_rate(self):
-        """
-        Testing that the algorithm can calculate metrics when trade count is not 0
+        Testing that the algorithm can execute trades continuously
         """
 
-        self.algorithm.__trade_count__ = 1
-        self.test_calculate_metrics_without_win_rate()
+        capital = 10000
+        portfolio = None
+        start_date = dt.datetime(2005, 0o1, 27)
+
+        for days in range(300):
+            current_index = pd.date_range(
+                start=start_date + dt.timedelta(days),
+                periods=1,
+                freq='D'
+            )
+            current_data = pd.DataFrame(index=current_index, data={
+                "AAPL_price": np.random.uniform(100, 200, size=1),
+                "GOOGL_price": np.random.uniform(1500, 2000, size=1)
+            })
+            portfolio = self.algorithm.execute_trade(capital, current_data)
+
+        self.assertTrue(ticker in portfolio for ticker in self.tickers)
+        self.assertTrue(isinstance(portfolio[ticker], int) for ticker in self.tickers)

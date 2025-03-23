@@ -5,7 +5,7 @@ implements this interface which includes preprocessing steps.
 
 from abc import ABC, abstractmethod
 
-from pandas import DataFrame
+from pandas import DataFrame, concat
 
 from uwqsc_algorithmic_trading.src.common.config import INTERFACE_NOT_IMPLEMENTED_ERROR
 
@@ -22,17 +22,8 @@ class IPreProcessData(ABC):
         Initialize the data preprocessor.
         """
 
-        self.__raw_data__ = None
+        self.__data_history__ = DataFrame()
         self.__processed_data__ = None
-
-    @abstractmethod
-    def load_data(self):
-        """
-        This function saves the DataFrame to Parquet for efficient storage.
-        :side-effect: creates a parquet file.
-        """
-
-        raise INTERFACE_NOT_IMPLEMENTED_ERROR
 
     @abstractmethod
     def missing_values(self):
@@ -68,15 +59,21 @@ class IPreProcessData(ABC):
 
         raise INTERFACE_NOT_IMPLEMENTED_ERROR
 
-    def process_data(self) -> DataFrame:
+    def process_data(self, current_data: DataFrame) -> DataFrame:
         """
-        Complete pipeline for data preprocessing.
+        Complete pipeline for data preprocessing for a single occurrence of data.
         :returns: DataFrame containing processed data.
         """
 
-        self.load_data()
+        self.__processed_data__ = current_data
+
         self.missing_values()
         self.remove_duplicate_timestamps()
         self.remove_outliers()
+
+        if self.__data_history__.empty:
+            self.__data_history__ = self.__processed_data__
+        else:
+            self.__data_history__ = concat([self.__data_history__, self.__processed_data__])
 
         return self.__processed_data__

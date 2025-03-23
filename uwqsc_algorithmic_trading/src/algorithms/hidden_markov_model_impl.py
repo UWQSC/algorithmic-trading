@@ -29,6 +29,7 @@ class HiddenMarkovModelImpl(IAlgorithm):
     def calculate_position_size(self, ticker: str, price: float, portfolio_value: float) -> float:
         pass
 
+    @DeprecationWarning
     def execute_trades(self, capital: float) -> DataFrame:
         """
        Execute trades based on signals and manage portfolio.
@@ -80,5 +81,6 @@ class HiddenMarkovModelImpl(IAlgorithm):
 
         return portfolio
 
+    @DeprecationWarning
     def calculate_metrics(self, portfolio: DataFrame) -> Dict[str, float]:
         pass
