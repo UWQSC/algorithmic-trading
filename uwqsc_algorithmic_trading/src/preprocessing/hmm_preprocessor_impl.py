@@ -12,23 +12,25 @@ class HMMPreProcessorImpl(IPreProcessData):
     Data preprocessor for the Hidden Markov Model algorithm.
     """
 
+    @DeprecationWarning
     def load_data(self):
-        pass
+        """
+        This function is now deprecated.
+        """
 
     def missing_values(self):
         pass
 
     def remove_duplicate_timestamps(self):
-        # Use processed data if available, otherwise fall back to raw data.
-        if self.__processed_data__ is not None:
-            data = self.__processed_data__
-        else:
-            data = self.__raw_data__
-        
+        data = self.__processed_data__
+
         # Check if data is loaded
         if data is None:
-            raise ValueError("Data not loaded. Please ensure load_data() is called before removing duplicate timestamps.")
-        
+            raise ValueError(
+                """Data not loaded.
+                Please ensure load_data() is called before removing duplicate timestamps."""
+            )
+
         # Remove duplicates based on the 'timestamp' column
         clean_data = data.drop_duplicates(subset=['Date'])
         self.__processed_data__ = clean_data

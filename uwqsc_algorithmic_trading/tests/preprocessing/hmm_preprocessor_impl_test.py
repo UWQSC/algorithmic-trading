@@ -1,33 +1,43 @@
 """
 Testing the Hidden Markov Model Preprocessor
 """
-import pandas as pd
+
 import unittest
+import pandas as pd
+
+from uwqsc_algorithmic_trading.src.preprocessing.hmm_preprocessor_impl import HMMPreProcessorImpl
 
 
 class HMMPreprocessorImplTest(unittest.TestCase):
     """
     This class is used to test each component of Hidden Markov Model's preprocessor
     """
-def test_remove_duplicate_timestamps_removes_duplicates(self):
 
-    # Create a DataFrame with duplicate 'Date' entries.
-    data = pd.DataFrame({
-        'Date': ['2025-03-13', '2025-03-13', '2025-03-14', '2025-03-15', '2025-03-15'],
-        'Price': [10, 10, 20, 30, 30]
-    })
+    def setUp(self):
+        self.tickers = ["AAPL", "GOOGL"]
+        self.short_window = 50
+        self.long_window = 200
 
-    # Inject the dummy data into the preprocessor.
-    # Note: __raw_data__ and __processed_data__ are defined in the base class and we access them via name mangling.
-    self.preprocessor._IPreProcessData__raw_data__ = data
-    self.preprocessor._IPreProcessData__processed_data__ = data.copy()
+        self.preprocessor = HMMPreProcessorImpl()
 
-    raw_size = self.preprocessor._IPreProcessData__raw_data__.size
+    def test_remove_duplicate_timestamps_removes_duplicates(self):
+        """
+        Test that we remove duplicate timestamps
+        """
 
-    # Call the function under test.
-    self.preprocessor.remove_duplicate_timestamps()
+        # Create a DataFrame with duplicate 'Date' entries.
+        data = pd.DataFrame({
+            'Date': ['2025-03-13', '2025-03-13', '2025-03-14', '2025-03-15', '2025-03-15'],
+            'Price': [10, 10, 20, 30, 30]
+        })
 
-    new_size = self.preprocessor._IPreProcessData__processed_data__.size
+        # Inject the stubbed data into the preprocessor.
+        # Note: __raw_data__ and __processed_data__ are defined in the base class, and we access
+        # them via name mangling.
+        self.preprocessor.__processed_data__ = data
 
-    # Assert that the size is reduced after duplicates are removed.
-    self.assertTrue(new_size < raw_size)    
+        # Call the function under test.
+        self.preprocessor.remove_duplicate_timestamps()
+
+        # Assert that the size is reduced after duplicates are removed.
+        self.assertFalse(self.preprocessor.__processed_data__.duplicated().any())
