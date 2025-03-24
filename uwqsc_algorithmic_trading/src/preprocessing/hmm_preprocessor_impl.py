@@ -31,8 +31,8 @@ class HMMPreProcessorImpl(IPreProcessData):
                 Please ensure load_data() is called before removing duplicate timestamps."""
             )
 
-        # Remove duplicates based on the 'timestamp' column
-        clean_data = data.drop_duplicates(subset=['Date'])
+        # Remove duplicates based on both 'Date' and 'Stock_Ticker' columns
+        clean_data = data.drop_duplicates(subset=['Date', 'Stock_Ticker'])
         self.__processed_data__ = clean_data
 
     def remove_outliers(self):

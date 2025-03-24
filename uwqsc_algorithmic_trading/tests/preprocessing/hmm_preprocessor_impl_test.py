@@ -20,24 +20,28 @@ class HMMPreprocessorImplTest(unittest.TestCase):
 
         self.preprocessor = HMMPreProcessorImpl()
 
-    def test_remove_duplicate_timestamps_removes_duplicates(self):
+    def test_remove_duplicate_timestamps_removes_duplicates_with_tickers(self):
         """
-        Test that we remove duplicate timestamps
+        Test that duplicates are removed based on both 'Date' and 'Stock_Ticker' columns
         """
-
-        # Create a DataFrame with duplicate 'Date' entries.
+        # Create a DataFrame with duplicate entries for the same date but different tickers
+        # and duplicates with both same date and ticker
         data = pd.DataFrame({
-            'Date': ['2025-03-13', '2025-03-13', '2025-03-14', '2025-03-15', '2025-03-15'],
-            'Price': [10, 10, 20, 30, 30]
+            'Date': ['2025-03-13', '2025-03-13', '2025-03-13', '2025-03-14', '2025-03-14'],
+            'Stock_Ticker': ['AAPL', 'GOOGL', 'AAPL', 'AAPL', 'AAPL'],
+            'Price': [10, 12, 11, 20, 21]
         })
 
-        # Inject the stubbed data into the preprocessor.
-        # Note: __raw_data__ and __processed_data__ are defined in the base class, and we access
-        # them via name mangling.
+        # Inject the data into the preprocessor
         self.preprocessor.__processed_data__ = data
 
-        # Call the function under test.
+        # Call the function under test
         self.preprocessor.remove_duplicate_timestamps()
 
-        # Assert that the size is reduced after duplicates are removed.
-        self.assertFalse(self.preprocessor.__processed_data__.duplicated().any())
+        # The resulting DataFrame should have 3 rows:
+        # (2025-03-13, AAPL), (2025-03-13, GOOGL), (2025-03-14, AAPL)
+        processed_data = self.preprocessor.__processed_data__
+            
+        self.assertEqual(len(processed_data), 3)
+        self.assertEqual(len(processed_data[processed_data['Date'] == '2025-03-13']), 2)
+        self.assertEqual(len(processed_data[processed_data['Date'] == '2025-03-14']), 1)
