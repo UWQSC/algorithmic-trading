@@ -3,8 +3,6 @@ import os
 import yfinance as yf
 from datetime import datetime, timedelta
 import plotly
-import plotly.graph_objects as go
-import plotly.express as px
 import sys
 import time
 
