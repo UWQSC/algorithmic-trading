@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "uwqsc-algorithmic-trading"
-version = "2025.3.7-2"
+version = "2025.3.23"
 dependencies = [
     "matplotlib==3.7.0",
     "numpy==1.26.4",

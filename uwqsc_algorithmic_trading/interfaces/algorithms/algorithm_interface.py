@@ -55,11 +55,11 @@ class IAlgorithm(ABC):
         self.__trade_count__: int = 0
 
     @abstractmethod
-    def generate_signals(self, data: DataFrame):
+    def generate_signals(self, current_data: DataFrame):
         """
         Generate trading signals based on processed market data.
 
-        :param data: DataFrame represents the current processed market data
+        :param current_data: DataFrame represents the current processed market data
 
         :side-effect: Changes positions of the algorithm.
         """
@@ -83,60 +83,41 @@ class IAlgorithm(ABC):
 
         raise INTERFACE_NOT_IMPLEMENTED_ERROR
 
-    @abstractmethod
-    def execute_trades(self, capital: float) -> DataFrame:
+    def execute_trade(self, capital: float, current_data: DataFrame) -> Dict:
         """
-        Execute trades based on signals and manage portfolio.
+        Execute a single trade for the list of tickers provided.
 
-        :param capital: Value of cash allocated to the algorithm
+        :param capital: The integer value of cash allocated to the algorithm
+        :param current_data: DataFrame represents the current processed market data
 
         :returns: DataFrame with portfolio performance
         """
 
-        raise INTERFACE_NOT_IMPLEMENTED_ERROR
+        current_data = self.prepare_data(current_data)
+        self.generate_signals(current_data)
+        cost_per_ticker: Dict = {}
 
-    @abstractmethod
-    def calculate_metrics(self, portfolio: DataFrame) -> Dict[str, float]:
-        """
-        Calculate performance metrics for the algorithm.
+        for ticker in self.tickers:
+            price_col = f"{ticker}_price"
+            current_price: float = current_data[price_col].iloc[-1]
 
-        :param portfolio: Portfolio performance data
+            position_size = self.calculate_position_size(
+                ticker,
+                current_price,
+                capital
+            )
 
-        :returns: Dictionary with performance metrics
-        """
+            cost = position_size * current_price
+            cost_per_ticker[ticker] = cost
 
-        raise INTERFACE_NOT_IMPLEMENTED_ERROR
+            if cost != 0:
+                self.__trade_count__ += 1
 
-    def prepare_data(self) -> None:
+        return cost_per_ticker
+
+    def prepare_data(self, current_data: DataFrame) -> DataFrame:
         """
         Prepare data for the algorithm using the linked data processor.
         """
 
-        if self.__data__ is None:
-            self.__data__ = self.__data_processor__.process_data()
-
-    def run(self, capital: float) -> Dict[str, Any]:
-        """
-        Run the algorithm, optionally preparing data first.
-
-        :returns: Dictionary with algorithm results
-        """
-
-        self.prepare_data()
-        portfolio = self.execute_trades(capital)
-        self.metrics = self.calculate_metrics(portfolio)
-
-        results = {
-            'signals': self.__positions__,
-            'portfolio': portfolio,
-            'metrics': self.metrics,
-            'data': self.__data__
-        }
-
-        print("==============================================")
-        print(f"{self.name}:")
-        for metric, value in results['metrics'].items():
-            print(f"{metric}: {value}")
-        print("==============================================")
-
-        return results
+        return self.__data_processor__.process_data(current_data)
