@@ -41,7 +41,7 @@ class HMMPreprocessorImplTest(unittest.TestCase):
         # The resulting DataFrame should have 3 rows:
         # (2025-03-13, AAPL), (2025-03-13, GOOGL), (2025-03-14, AAPL)
         processed_data = self.preprocessor.__processed_data__
-            
+
         self.assertEqual(len(processed_data), 3)
         self.assertEqual(len(processed_data[processed_data['Date'] == '2025-03-13']), 2)
         self.assertEqual(len(processed_data[processed_data['Date'] == '2025-03-14']), 1)
