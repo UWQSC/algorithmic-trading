@@ -14,6 +14,26 @@ import yfinance as yf
 
 from uwqsc_algorithmic_trading.src.common.config import PATHS
 
+## CONSTANTS
+TAG = "[COLLECT DATA]"
+
+SYMBOL_COLUMN = "Symbol"
+TICKER_COLUMN = "Tickers"
+DATE_COLUMN = "Date"
+STOCK_NAME_COLUMN = "Stock_Name"
+STOCK_TICKER_COLUMN = "Stock_Ticker"
+PRICE_COLUMN = "Price"
+CLOSE_COLUMN = "Close"
+
+TICKERS_FILE = "sp_tickers.csv"
+STOCK_DATA = "combined_stock_data.csv"
+STOCK_DATA_PARQUET = 'combined_stock_data.parquet'
+
+DATA_DIR = PATHS.DATA_DIR
+CSV_PATH = os.path.join(DATA_DIR, TICKERS_FILE)
+OUTPUT_CSV = os.path.join(DATA_DIR, STOCK_DATA)
+OUTPUT_PARQUET = os.path.join(DATA_DIR, STOCK_DATA_PARQUET)
+
 
 def get_combined_sp_tickers() -> List[str]:
     """
@@ -22,16 +42,16 @@ def get_combined_sp_tickers() -> List[str]:
     Returns:
         list: List of unique stock ticker symbols from S&P 500, 400 and 600 indices
     """
-    print("Fetching ticker lists...")
+    print(f"{TAG} Fetching ticker lists...")
     try:
         # Fetch tickers from Wikipedia
         sp500_url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
         sp400_url = 'https://en.wikipedia.org/wiki/List_of_S%26P_400_companies'
         sp600_url = 'https://en.wikipedia.org/wiki/List_of_S%26P_600_companies'
 
-        sp500_tickers = pd.read_html(sp500_url)[0]['Symbol'].tolist()
-        sp400_tickers = pd.read_html(sp400_url)[0]['Symbol'].tolist()
-        sp600_tickers = pd.read_html(sp600_url)[0]['Symbol'].tolist()
+        sp500_tickers = pd.read_html(sp500_url)[0][SYMBOL_COLUMN].tolist()
+        sp400_tickers = pd.read_html(sp400_url)[0][SYMBOL_COLUMN].tolist()
+        sp600_tickers = pd.read_html(sp600_url)[0][SYMBOL_COLUMN].tolist()
 
         # Clean tickers: remove any that contain dots
         all_tickers = [
@@ -41,25 +61,18 @@ def get_combined_sp_tickers() -> List[str]:
 
         # Remove duplicates
         all_tickers = list(set(all_tickers))
-        print(f"Found {len(all_tickers)} unique tickers")
+        print(f"{TAG} Found {len(all_tickers)} unique tickers")
 
         return all_tickers
     except (ValueError, IndexError) as error:
-        print(f"Error fetching tickers: {error}")
+        print(f"{TAG} Error fetching tickers: {error}")
         return []
 
 
-def get_stock_data(ticker_file='sp_ticker.csv',
-                   output_csv='combined_stock_data.csv',
-                   output_parquet='combined_stock_data.parquet') -> Optional[pd.DataFrame]:
+def get_stock_data() -> Optional[pd.DataFrame]:
     """
     Retrieves historical stock data for tickers listed in a CSV file
     and combines them into a single DataFrame.
-
-    Args:
-        ticker_file (str): Path to CSV file containing stock tickers (must have column 'Ticker')
-        output_csv (str): Path to save combined data in CSV format
-        output_parquet (str): Path to save combined data in Parquet format
 
     Returns:
         pandas.DataFrame: Combined stock data with columns: Date, Stock_Name, Stock_Ticker, Price
@@ -71,50 +84,53 @@ def get_stock_data(ticker_file='sp_ticker.csv',
 
     # Read the ticker list
     try:
-        print("Reading ticker list from", ticker_file)
-        ticker_df = pd.read_csv(ticker_file)
+        print(f"{TAG} Reading ticker list from {TICKERS_FILE}")
+        ticker_df = pd.read_csv(CSV_PATH)
 
-        if 'Ticker' not in ticker_df.columns:
-            print("Error: CSV file must contain a column named 'Ticker'")
+        if TICKER_COLUMN not in ticker_df.columns:
+            print(f"{TAG} Error: CSV file must contain a column named {TICKER_COLUMN}")
             return None
 
-        tickers = ticker_df['Tickers'].tolist()
-        print("Found", len(tickers), "tickers in the input file")
+        tickers = ticker_df[TICKER_COLUMN].tolist()
+        print(f"{TAG} Found {len(tickers)} tickers in the input file")
     except (FileNotFoundError, pd.errors.EmptyDataError) as error:
-        print("Error reading ticker file:", str(error))
+        print(f"{TAG} Error reading ticker file: {str(error)}")
         return None
 
     # Check if output files exist and get the latest date
-    if os.path.exists(output_csv):
+    if os.path.exists(OUTPUT_CSV):
         try:
-            existing_data = pd.read_csv(output_csv)
+            existing_data = pd.read_csv(OUTPUT_CSV)
             if not existing_data.empty:
                 # Convert existing dates to datetime for comparison
-                existing_data['Date'] = pd.to_datetime(existing_data['Date'], format='%d/%m/%Y')
-                latest_date = existing_data['Date'].max()
+                existing_data[DATE_COLUMN] = pd.to_datetime(
+                    existing_data[DATE_COLUMN],
+                    format='%d/%m/%Y'
+                )
+                latest_date = existing_data[DATE_COLUMN].max()
                 # Set start date to day after the latest date
                 start_date = (latest_date + timedelta(days=1)).strftime('%Y-%m-%d')
-                print("Found existing data up to", latest_date.strftime('%d/%m/%Y'))
-                print("Will update data from", start_date)
+                print(f"{TAG} Found existing data up to  {latest_date.strftime('%d/%m/%Y')}")
+                print(f"{TAG} Will update data from {start_date}")
 
                 # Convert back to string format for storage
-                existing_data['Date'] = existing_data['Date'].dt.strftime('%d/%m/%Y')
+                existing_data[DATE_COLUMN] = existing_data[DATE_COLUMN].dt.strftime('%d/%m/%Y')
                 combined_data = existing_data
         except (pd.errors.ParserError, KeyError) as error:
-            print("Error reading existing CSV file:", str(error))
-            print("Will create new output files")
+            print(f"{TAG} Error reading existing CSV file: {str(error)}")
+            print(f"{TAG} Will create new output files")
 
     # Process each ticker
     for i, ticker in enumerate(tickers):
         try:
-            print("Processing ticker", ticker, "(", i+1, "of", len(tickers), ")")
+            print(f"{TAG} Processing ticker {ticker} ({i + 1} of {len(tickers)})")
 
             # Get stock data
             stock = yf.Ticker(ticker)
             hist_data = stock.history(start=start_date, end=end_date)
 
             if hist_data.empty:
-                print("No data available for", ticker, "in the specified date range")
+                print(f"{TAG} No data available for {ticker} in the specified date range")
                 continue
 
             # Get stock name
@@ -125,10 +141,10 @@ def get_stock_data(ticker_file='sp_ticker.csv',
 
             # Process the data
             ticker_data = pd.DataFrame({
-                'Date': hist_data.index.strftime('%d/%m/%Y'),
-                'Stock_Name': stock_name,
-                'Stock_Ticker': ticker,
-                'Price': hist_data['Close']
+                DATE_COLUMN: hist_data.index.strftime('%d/%m/%Y'),
+                STOCK_NAME_COLUMN: stock_name,
+                STOCK_TICKER_COLUMN: ticker,
+                PRICE_COLUMN: hist_data[CLOSE_COLUMN]
             })
 
             # Append to combined data
@@ -138,26 +154,26 @@ def get_stock_data(ticker_file='sp_ticker.csv',
             time.sleep(0.5)
 
         except Exception as error:  # pylint: disable=broad-except
-            print("Error processing ticker", ticker, ":", str(error))
+            print(f"{TAG} Error processing ticker {ticker} : {str(error)}")
 
     # Remove duplicates if any
-    combined_data.drop_duplicates(subset=['Date', 'Stock_Ticker'], inplace=True)
-    print("Combined data contains", len(combined_data), "records")
+    combined_data.drop_duplicates(subset=[DATE_COLUMN, STOCK_TICKER_COLUMN], inplace=True)
+    print(f"{TAG} Combined data contains {len(combined_data)} records")
 
     # Save to output files
     try:
         if not combined_data.empty:
             # Save to CSV
-            combined_data.to_csv(output_csv, index=False)
-            print("Data saved to", output_csv)
+            combined_data.to_csv(OUTPUT_CSV, index=False)
+            print(f"{TAG} Data saved to {OUTPUT_CSV}")
 
             # Save to Parquet
-            combined_data.to_parquet(output_parquet, index=False)
-            print("Data saved to", output_parquet)
+            combined_data.to_parquet(OUTPUT_PARQUET, index=False)
+            print(f"{TAG} Data saved to {OUTPUT_PARQUET}")
         else:
-            print("No data to save")
+            print(f"{TAG} No data to save")
     except (IOError, ValueError) as error:
-        print("Error saving output files:", str(error))
+        print(f"{TAG} Error saving output files: {str(error)}")
 
     return combined_data
 
@@ -165,16 +181,10 @@ def get_stock_data(ticker_file='sp_ticker.csv',
 if __name__ == '__main__':
     # Get tickers from S&P indices
     SP_TICKERS = get_combined_sp_tickers()
-    DATA_DIR = PATHS.DATA_DIR
 
     # Export tickers to CSV in the data directory
-    TICKERS_DF = pd.DataFrame(SP_TICKERS, columns=['Tickers'])
-    CSV_PATH = os.path.join(DATA_DIR, 'sp_tickers.csv')
+    TICKERS_DF = pd.DataFrame(SP_TICKERS, columns=[TICKER_COLUMN])
     TICKERS_DF.to_csv(CSV_PATH, index=False)
 
     # Get stock data for all tickers
-    get_stock_data(
-        ticker_file=CSV_PATH,
-        output_csv=os.path.join(DATA_DIR, 'combined_stock_data.csv'),
-        output_parquet=os.path.join(DATA_DIR, 'combined_stock_data.parquet')
-    )
+    get_stock_data()
