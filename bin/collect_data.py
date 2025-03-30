@@ -169,7 +169,7 @@ if __name__ == '__main__':
     os.makedirs(DATA_DIR, exist_ok=True)
     
     # Export tickers to CSV in the data directory
-    TICKERS_DF = pd.DataFrame(SP_TICKERS, columns=['Ticker'])
+    TICKERS_DF = pd.DataFrame(SP_TICKERS, columns=['Stock_Tickers'])
     CSV_PATH = os.path.join(DATA_DIR, 'sp_tickers.csv')
     TICKERS_DF.to_csv(CSV_PATH, index=False)
     

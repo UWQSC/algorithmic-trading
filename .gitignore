@@ -8,3 +8,6 @@ uwqsc_algorithmic_trading.egg-info
 .idea/shelf
 
 .coverage
+
+data/*.csv
+data/*.parquet 
