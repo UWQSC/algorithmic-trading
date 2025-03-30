@@ -78,7 +78,7 @@ def get_stock_data(ticker_file='sp_ticker.csv',
             print("Error: CSV file must contain a column named 'Ticker'")
             return None
 
-        tickers = ticker_df['Ticker'].tolist()
+        tickers = ticker_df['Tickers'].tolist()
         print("Found", len(tickers), "tickers in the input file")
     except (FileNotFoundError, pd.errors.EmptyDataError) as error:
         print("Error reading ticker file:", str(error))
