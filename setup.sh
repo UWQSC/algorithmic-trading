@@ -9,3 +9,6 @@ pip install -r requirements.txt
 # Git hooks setup 
 scp bin/commit-msg.sh .git/hooks/commit-msg
 chmod +x .git/hooks/commit-msg
+
+export PATH=$PATH:"$(pwd)/bin"
+source .alias.sh
