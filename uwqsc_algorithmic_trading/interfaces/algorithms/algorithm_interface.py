@@ -3,7 +3,7 @@ This file stores bare-bones information required for any Stock Prediction Algori
 """
 
 from abc import ABC, abstractmethod
-from enum import Enum
+from enum import IntEnum
 from typing import Any, Dict, List, Optional
 
 from pandas import DataFrame
@@ -13,7 +13,7 @@ from uwqsc_algorithmic_trading.interfaces.preprocessing.preprocessor_interface \
 from uwqsc_algorithmic_trading.src.common.config import INTERFACE_NOT_IMPLEMENTED_ERROR
 
 
-class StockPosition(Enum):
+class StockPosition(IntEnum):
     """
     Enumeration class made to store the information about stock positions.
     Normally, the market can be defined as Bullish, Bearish or Trailing Sideways.

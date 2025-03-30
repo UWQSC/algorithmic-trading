@@ -3,7 +3,7 @@ Implementation of the Simple Moving Average (SMA) algorithm.
 """
 
 import random
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 import pandas as pd
 
@@ -19,7 +19,10 @@ class SimpleMovingAverageImpl(IAlgorithm):
 
     def __init__(self,
                  tickers: List[str],
-                 parameters: Dict[str, Any] = None):
+                 parameters: Optional[Dict[Any, Any]] = None):
+        if parameters is None:
+            parameters = {'position_size': 0.01}
+
         name = "Simple Moving Average"
         data_processor = SMAPreProcessorImpl(tickers)
 
