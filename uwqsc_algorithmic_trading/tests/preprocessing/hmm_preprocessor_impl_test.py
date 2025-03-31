@@ -41,3 +41,22 @@ class HMMPreprocessorImplTest(unittest.TestCase):
 
         # Assert that the size is reduced after duplicates are removed.
         self.assertFalse(self.preprocessor.__processed_data__.duplicated().any())
+
+    def test_missing_values_removes_missing_values(self):
+        """
+        Test that missing values are filled using forward and backward fill.
+        """
+        # Create a DataFrame with missing values.
+        data = pd.DataFrame({
+            'Date': ['2025-03-13', '2025-03-14', '2025-03-15', '2025-03-16', '2025-03-17'],
+            'Price': [10, None, 20, None, 30]
+        })
+
+        # Inject the stubbed data into the preprocessor.
+        self.preprocessor.__processed_data__ = data
+
+        # Call the function under test.
+        self.preprocessor.missing_values()
+
+        # Assert that there are no remaining missing values.
+        self.assertFalse(self.preprocessor.__processed_data__.isnull().any().any())
