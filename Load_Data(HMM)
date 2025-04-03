@@ -1,0 +1,12 @@
+def load_data(self):
+    self._ohlcv_data_ = {}
+    self._open_price = pd.DataFrame()
+
+    for ticker in self.tickers:
+        data = yf.download(ticker,start=self.start_date,end=self.end_date)
+
+        if not data.empty:
+           self._ohlcv_data_[ticker] = data
+           self._open_prices_[ticker] = data["Aj Close"]
+    self._open_price_.index.name = 'Date'
+    
