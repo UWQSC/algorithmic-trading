@@ -2,11 +2,13 @@
 Implementation of the Hidden Markov Model (HMM) algorithm.
 """
 
+import random
 from typing import Dict, List, Any
 
+import pandas as pd
 from pandas import DataFrame
 
-from uwqsc_algorithmic_trading.interfaces.algorithms.algorithm_interface import IAlgorithm
+from uwqsc_algorithmic_trading.interfaces.algorithms.algorithm_interface import IAlgorithm, StockPosition
 from uwqsc_algorithmic_trading.src.preprocessing.hmm_preprocessor_impl import HMMPreProcessorImpl
 
 
@@ -21,13 +23,75 @@ class HiddenMarkovModelImpl(IAlgorithm):
         name = "Hidden Markov Model"
         data_processor = HMMPreProcessorImpl()
 
+        self.__current_short__: Dict[str, int] = {}
+        self.__current_long__: Dict[str, int] = {}
+        self.__previous_short__: Dict[str, int] = {}
+        self.__previous_long__: Dict[str, int] = {}
+
         super().__init__(name, tickers, data_processor, parameters)
 
     def generate_signals(self, current_data: DataFrame):
-        pass
+        # If this is the first time executing, initialize current and previous signals
+        #   by looping through each stock, storing its long and short-term values
+        if not self.executing:
+            for ticker in self.tickers:
+                short_col = f"{ticker}_short"
+                long_col = f"{ticker}_long"
 
+                self.__current_short__[ticker] = current_data[short_col].iloc[-1]
+                self.__current_long__[ticker] = current_data[long_col].iloc[-1]
+
+                # Randomly assign a position to each stock
+                self.__positions__[ticker] = random.choice(list(StockPosition))
+            self.executing = True
+        # If it is not the first run
+        else:
+            for ticker in self.tickers:
+                short_col = f"{ticker}_short"
+                long_col = f"{ticker}_long"
+
+                # Save the current short/long values as "previous" for comparison
+                # Update the current short/long values
+                self.__previous_short__[ticker] = self.__current_short__[ticker]
+                self.__previous_long__[ticker] = self.__current_long__[ticker]
+                self.__current_short__[ticker] = current_data[short_col].iloc[-1]
+                self.__current_long__[ticker] = current_data[long_col].iloc[-1]
+
+                # If the short-term crosses above the long-term, set position to LONG (Buy)
+                # If the short-term crosses below the long-term, set position to SHORT (Sell)
+                # Else, NEUTRAL (Hold)
+                # This is a simple crossover strategy
+                if (self.__previous_short__[ticker] <= self.__previous_long__[ticker] and
+                        self.__current_short__[ticker] > self.__current_long__[ticker]):
+                    self.__positions__[ticker] = StockPosition.LONG
+                elif (self.__previous_short__[ticker] > self.__previous_long__[ticker] and
+                        self.__current_short__[ticker] <= self.__current_long__[ticker]):
+                    self.__positions__[ticker] = StockPosition.SHORT
+                else:
+                    self.__positions__[ticker] = StockPosition.NEUTRAL
+
+    # Decides how many shares to buy or sell
+    # Arguments:
+    #  - ticker: The stock ticker symbol
+    #  - price: The current price of the stock
+    #  - portfolio_value: The current value of the portfolio
+    #  - base_position_size: float = self.parameters['position_size'] * portfolio_value
+    #       start with the % of the portfolio value you want to use (like 10% of $10,000 = $1,000)
+    # - position_size: float = 0.0
+    #       default is to not buy anything
     def calculate_position_size(self, ticker: str, price: float, portfolio_value: float) -> float:
-        pass
+        base_position_size: float = self.parameters['position_size'] * portfolio_value
+        position_size: float = 0.0
+
+        # If LONG, calculate how many shares to buy with that size and company
+        if self.__positions__[ticker] == StockPosition.LONG:
+            position_size = base_position_size / price
+        # If SHORT, buy a negative number of shares (sell) with that size and company
+        #   making it a negative number is a simple way to track sells and buys
+        elif self.__positions__[ticker] == StockPosition.SHORT:
+            position_size = -1 * (base_position_size / price)
+
+        return position_size
 
     @DeprecationWarning
     def execute_trades(self, capital: float) -> DataFrame:
