@@ -20,9 +20,9 @@ class StockPosition(Enum):
     Similarly, a person's stock position can be defined with hold, short, long, etc.
     """
 
-    SHORT = -1
-    HOLD = 0
-    LONG = 1
+    SHORT = 0
+    HOLD = 1
+    LONG = 2
 
 
 class IAlgorithm(ABC):
@@ -34,7 +34,7 @@ class IAlgorithm(ABC):
                  name: str,
                  tickers: List[str],
                  data_processor: IPreProcessData,
-                 parameters: Dict[str, Any] = None):
+                 parameters: Optional[Dict[str, Any]] = None):
         """
         Initialize a trading algorithm.
 
